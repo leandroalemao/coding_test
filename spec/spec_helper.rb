@@ -1,3 +1,4 @@
 require 'pry'
 
-Dir['./lib/*.rb'].each { |file| require file }
+Dir.glob(File.join(__dir__, '../lib/**/*.rb'))
+  .each { |file| require file }
