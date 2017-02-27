@@ -17,6 +17,7 @@ class JobQueueManager
   end
 
   def sort_jobs_queue!
+    raise RuntimeError, "Jobs can't have circular dependencies" if has_cyclic_dependency?
     jobs_queue.values.inject([]) { |sorted_jobs, job|
       sorted_jobs << job.name unless sorted_jobs.include?(job.name)
       if job.dependency
@@ -25,5 +26,16 @@ class JobQueueManager
       end
       sorted_jobs
     }
+  end
+
+  def has_cyclic_dependency?
+    jobs_queue.each { |job_name, job|
+      dependencies = []
+      while(job = jobs_queue[job.dependency])
+        return true if dependencies.include?(job.name)
+        dependencies << job.name
+      end
+    }
+    return false
   end
 end
